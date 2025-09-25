@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:latest
     environment:
       POSTGRES_DB: my_blog_db
       POSTGRES_USER: root
