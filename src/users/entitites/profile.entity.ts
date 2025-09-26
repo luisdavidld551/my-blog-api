@@ -11,7 +11,7 @@ export class Profile {
   @Column({ type: 'varchar', length: 255, name: 'last_name' })
   lastName: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   avatar: string;
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP', name: 'created_at' })

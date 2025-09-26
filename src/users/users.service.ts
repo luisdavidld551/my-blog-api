@@ -1,69 +1,59 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { User } from './user.model';
+import { Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entitites/users.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    {
-      id: '1',
-      name: 'Luis David',
-      email: 'luisdavidld551@gmail.com',
-    },
-    {
-      id: '2',
-      name: 'Jenifer Karina',
-      email: 'jenifer@gmail.com',
-    },
-    {
-      id: '3',
-      name: 'Jenifer Karina de Dominguez',
-      email: 'jeniferD@gmail.com',
-    },
-  ];
+  constructor(
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+  ) {}
 
-  findAll() {
-    return this.users;
+  async findAll() {
+    const users = await this.usersRepository.find();
+    return users;
   }
 
-  getUserById(id: string) {
-    const position = this.findOne(id);
-    const user = this.users[position];
-    if (user.id == '1') {
+  async getUserById(id: number) {
+    const user = await this.findOne(id);
+    if (user.id == 1) {
       throw new ForbiddenException('Tú no tienes permitido acceder a este usuario.');
     }
     return user;
   }
-  create(user: CreateUserDto) {
-    const newUser = {
-      ...user,
-      id: `${new Date().getTime()}`,
-    };
-    this.users.push(newUser);
-    return newUser;
+
+  async create(user: CreateUserDto) {
+    try {
+      const newUser = await this.usersRepository.save(user);
+      return newUser;
+    } catch {
+      throw new BadRequestException('Error al crear un usuario');
+    }
   }
 
-  delete(id: string) {
-    const position = this.findOne(id);
-    this.users.splice(position, 1);
+  async update(id: number, userChange: UpdateUserDto) {
+    try {
+      const user = await this.findOne(id);
+      const updateUser = this.usersRepository.merge(user, userChange);
+      return await this.usersRepository.save(updateUser);
+    } catch {
+      throw new BadRequestException('Error al actualizar un usuario');
+    }
+  }
+
+  async delete(id: number) {
+    const user = await this.findOne(id);
+    await this.usersRepository.delete(user.id);
     return { message: 'Usuario eliminado', code: 202 };
   }
 
-  update(id: string, user: UpdateUserDto) {
-    const position = this.findOne(id);
-    if (position !== -1) {
-      this.users[position] = {
-        ...this.users[position],
-        ...user,
-      };
-    }
-    return this.users[position];
-  }
-  private findOne(id: string) {
-    const position = this.users.findIndex((user) => user.id === id);
-    if (position === -1) {
+  private async findOne(id: number) {
+    const user = await this.usersRepository.findOneBy({ id });
+    if (!user) {
       throw new NotFoundException(`Usuario con el id ${id} no encontrado`);
     }
-    return position;
+    return user;
   }
 }
