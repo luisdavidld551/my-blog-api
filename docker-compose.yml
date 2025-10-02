@@ -7,13 +7,13 @@ services:
       POSTGRES_PASSWORD: root
       PGDATA: /var/lib/postgresql/16/docker
     ports:
-      - "5432:5432"
+      - "5433:5433"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   # Optional: pgAdmin for database management
   pgadmin:
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4:7.8
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@myblog.com
       PGADMIN_DEFAULT_PASSWORD: admin_password
