@@ -3,6 +3,7 @@ import { UsersService } from '../../users/services/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../users/entitites/users.entity';
+import { Payload } from '../../auth/models/payload.model';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +23,7 @@ export class AuthService {
     return user;
   }
   generenateToken(user: User) {
-    const payload = { sub: user.id };
+    const payload: Payload = { sub: user.id };
     return this.jwtService.sign(payload);
   }
 }
